@@ -224,6 +224,17 @@ window.addEventListener('keydown', event => {
     }
 });
 
+// オブジェクトが画面端にはみ出すのを防ぐ
+Events.on(engine, 'beforeUpdate', event => {
+    const x = nextObject.position.x;
+    if (x < nextObject.circleRadius) {
+        Body.setPosition(nextObject, { x: nextObject.circleRadius, y: nextObject.position.y });
+    } else if (x > width - nextObject.circleRadius) {
+        Body.setPosition(nextObject, { x: width - nextObject.circleRadius, y: nextObject.position.y });
+    }
+});
+
+
 
 // スペースキーのデフォルトの動作を無効化する関数
 function preventSpacebarScroll(event) {
