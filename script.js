@@ -192,7 +192,7 @@ let isFalling = false;
 World.add(engine.world, nextObject);
 
 window.addEventListener('keydown', event => {
-    if (event.code === 'Space' && !isFalling) { // isFalling を確認する
+    if (event.code === 'Space' && !isFalling) {
         // スペースキーでオブジェクトを落下
         isFalling = true;
         Body.setStatic(nextObject, false);
@@ -200,13 +200,22 @@ window.addEventListener('keydown', event => {
             nextObject = createRandomFallingObject(width / 2, 30);
             isFalling = false;
             World.add(engine.world, nextObject);
-        }, 2000)
+        }, 2000);
     } else if (event.code === 'ArrowLeft' && !isFalling) {
         // 左矢印キーでオブジェクトを左に移動
         Body.translate(nextObject, { x: -20, y: 0 });
     } else if (event.code === 'ArrowRight' && !isFalling) {
         // 右矢印キーでオブジェクトを右に移動
         Body.translate(nextObject, { x: 20, y: 0 });
+    } else if (event.code === 'ArrowDown' && !isFalling) {
+        // 下矢印キーでオブジェクトを落下
+        isFalling = true;
+        Body.setStatic(nextObject, false);
+        window.setTimeout(() => {
+            nextObject = createRandomFallingObject(width / 2, 30);
+            isFalling = false;
+            World.add(engine.world, nextObject);
+        }, 2000);
     }
 });
 
