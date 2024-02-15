@@ -203,10 +203,14 @@ window.addEventListener('keydown', event => {
         }, 2000);
     } else if (event.code === 'ArrowLeft' && !isFalling) {
         // 左矢印キーでオブジェクトを左に移動
-        Body.translate(nextObject, { x: -20, y: 0 });
+        if (nextObject.position.x - nextObject.circleRadius > 0) {
+            Body.translate(nextObject, { x: -20, y: 0 });
+        }
     } else if (event.code === 'ArrowRight' && !isFalling) {
         // 右矢印キーでオブジェクトを右に移動
-        Body.translate(nextObject, { x: 20, y: 0 });
+        if (nextObject.position.x + nextObject.circleRadius < width) {
+            Body.translate(nextObject, { x: 20, y: 0 });
+        }
     } else if (event.code === 'ArrowDown' && !isFalling) {
         // 下矢印キーでオブジェクトを落下
         event.preventDefault(); // デフォルトのスクロール動作を無効化
