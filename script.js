@@ -227,13 +227,16 @@ window.addEventListener('keydown', event => {
 // オブジェクトが画面端にはみ出すのを防ぐ
 Events.on(engine, 'beforeUpdate', event => {
     const x = nextObject.position.x;
+    const y = nextObject.position.y;
     if (x < nextObject.circleRadius) {
-        Body.setPosition(nextObject, { x: nextObject.circleRadius, y: nextObject.position.y });
+        Body.setPosition(nextObject, { x: nextObject.circleRadius, y });
     } else if (x > width - nextObject.circleRadius) {
-        Body.setPosition(nextObject, { x: width - nextObject.circleRadius, y: nextObject.position.y });
+        Body.setPosition(nextObject, { x: width - nextObject.circleRadius, y });
+    }
+    if (y < nextObject.circleRadius) {
+        Body.setPosition(nextObject, { x, y: nextObject.circleRadius });
     }
 });
-
 
 
 // スペースキーのデフォルトの動作を無効化する関数
