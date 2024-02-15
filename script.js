@@ -209,6 +209,7 @@ window.addEventListener('keydown', event => {
         Body.translate(nextObject, { x: 20, y: 0 });
     } else if (event.code === 'ArrowDown' && !isFalling) {
         // 下矢印キーでオブジェクトを落下
+        event.preventDefault(); // デフォルトのスクロール動作を無効化
         isFalling = true;
         Body.setStatic(nextObject, false);
         window.setTimeout(() => {
@@ -218,6 +219,7 @@ window.addEventListener('keydown', event => {
         }, 2000);
     }
 });
+
 
 // スペースキーのデフォルトの動作を無効化する関数
 function preventSpacebarScroll(event) {
