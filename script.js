@@ -226,6 +226,12 @@ function preventSpacebarScroll(event) {
     if (event.code === 'Space') {
         event.preventDefault(); // デフォルトのスクロール動作を無効化
     }
+    
+}
+function preventSpacebarScroll(event) {
+    if (event.code === 'ArrowDown') {
+        event.preventDefault(); // デフォルトのスクロール動作を無効化
+    }
 }
 
 // キーボード入力イベントリスナーを設定
