@@ -68,15 +68,6 @@ const objectDefinitions = [
         score: 70,
         probability: 0.01 // 出現確率
     },
-      {
-        texture: "img/cat8.png",
-        size: 500,
-        label: "cat7",
-        originalWidth: 640,
-        originalHeight: 854,
-        score: 500,
-        probability: 0 // 出現確率
-    },
 ];
 
 // 次に落とすオブジェクトをランダムに選択して作成する関数
