@@ -5,7 +5,7 @@ let total_score = 0;
 
 // オブジェクトの定義の配列
 const objectDefinitions = [
-      {
+ {
         texture: "img/cat1_circle.png",
         size: 25,
         label: "cat1_circle",
@@ -67,6 +67,15 @@ const objectDefinitions = [
         originalHeight: 362,
         score: 70,
         probability: 0.01 // 出現確率
+    },
+      {
+        texture: "img/cat8.png",
+        size: 500,
+        label: "cat7",
+        originalWidth: 640,
+        originalHeight: 854,
+        score: 500,
+        probability: 0 // 出現確率
     },
 ];
 
@@ -252,4 +261,3 @@ window.addEventListener('keydown', preventSpacebarScroll);
 // レンダラーとエンジンを実行
 Render.run(render);
 Engine.run(engine);
-
