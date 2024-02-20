@@ -39,7 +39,7 @@ const objectDefinitions = [
         originalWidth: 357,
         originalHeight: 339, 
         score: 40,
-        probability: 0.15 // 出現確率
+        probability: 0.16 // 出現確率
     },
     {
         texture: "img/cat5.png",
@@ -48,7 +48,7 @@ const objectDefinitions = [
         originalWidth: 366,
         originalHeight: 355,
         score: 50,
-        probability: 0.1 // 出現確率
+        probability: 0.15 // 出現確率
     },
     {
         texture: "img/cat6.png",
@@ -57,7 +57,7 @@ const objectDefinitions = [
         originalWidth: 349,
         originalHeight: 338,
         score: 60,
-        probability: 0.05 // 出現確率
+        probability: 0 // 出現確率
     },
     {
         texture: "img/cat7.png",
@@ -66,7 +66,7 @@ const objectDefinitions = [
         originalWidth: 362,
         originalHeight: 362,
         score: 70,
-        probability: 0.01 // 出現確率
+        probability: 0 // 出現確率
     },
 ];
 
