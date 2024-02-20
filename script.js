@@ -48,7 +48,7 @@ const objectDefinitions = [
         originalWidth: 366,
         originalHeight: 355,
         score: 50,
-        probability: 0.15 // 出現確率
+        probability: 0.1 // 出現確率
     },
     {
         texture: "img/cat6.png",
@@ -57,7 +57,7 @@ const objectDefinitions = [
         originalWidth: 349,
         originalHeight: 338,
         score: 60,
-    
+        probability: 0.05 // 出現確率
     },
     {
         texture: "img/cat7.png",
@@ -66,7 +66,7 @@ const objectDefinitions = [
         originalWidth: 362,
         originalHeight: 362,
         score: 70,
-        
+        probability: 0.01 // 出現確率
     },
 ];
 
@@ -74,11 +74,12 @@ const objectDefinitions = [
 function createRandomFallingObject(x, y) {
     let rand = Math.random();
     let cumulativeProbability = 0;
+    let filteredDefinitions = objectDefinitions.filter(def => def.label !== 'cat6' && def.label !== 'cat7');
 
-    for (let i = 0; i < objectDefinitions.length; i++) {
-        cumulativeProbability += objectDefinitions[i].probability;
+    for (let i = 0; i < filteredDefinitions.length; i++) {
+        cumulativeProbability += filteredDefinitions[i].probability;
         if (rand < cumulativeProbability) {
-            const objectDef = objectDefinitions[i];
+            const objectDef = filteredDefinitions[i];
 
             // スケールを計算（オブジェクトのサイズに合わせる）
             const scale = objectDef.size * 2 / Math.max(objectDef.originalWidth, objectDef.originalHeight);
@@ -121,7 +122,7 @@ var render = Render.create({
     element: document.getElementById('game-container'), // レンダリングする要素を指定
     engine: engine,
     options: { 
-        wireframes: false, // ワイヤーフレーム表示を有効にする
+        wireframes: true, // ワイヤーフレーム表示を有効にする
         wireframeLineWidth: 2, // ワイヤーフレームの線の幅を指定
         wireframeLineColor: '#ff0000', // ワイヤーフレームの線の色を指定
         background: 'img/game2202-.jpg' // 背景画像のパスを指定
