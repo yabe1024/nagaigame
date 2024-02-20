@@ -5,7 +5,7 @@ let total_score = 0;
 
 // オブジェクトの定義の配列
 const objectDefinitions = [
- {
+    {
         texture: "img/cat1_circle.png",
         size: 25,
         label: "cat1_circle",
@@ -84,7 +84,7 @@ function createRandomFallingObject(x, y) {
             const scale = objectDef.size * 2 / Math.max(objectDef.originalWidth, objectDef.originalHeight);
 
             // 出現位置の調整
-            const offsetY = 60; // 下へのオフセット
+            const offsetY = 50; // 下へのオフセット
             const object = Bodies.circle(x, y + offsetY, objectDef.size, {
                 label: objectDef.label,
                 isStatic: true,
@@ -121,7 +121,9 @@ var render = Render.create({
     element: document.getElementById('game-container'), // レンダリングする要素を指定
     engine: engine,
     options: { 
-        wireframes: false,
+        wireframes: false, // ワイヤーフレーム表示を有効にする
+        wireframeLineWidth: 2, // ワイヤーフレームの線の幅を指定
+        wireframeLineColor: '#ff0000', // ワイヤーフレームの線の色を指定
         background: 'img/game2202-.jpg' // 背景画像のパスを指定
     }
 });
@@ -135,11 +137,11 @@ const ground = Bodies.rectangle(width / 2, height, width, 20, { isStatic: true }
 const leftWall = Bodies.rectangle(0, height / 2, 20, height, { isStatic: true });
 const rightWall = Bodies.rectangle(width, height / 2, 20, height, { isStatic: true });
 
-// 天井を作成
-const ceiling = Bodies.rectangle(width / 2, 0, width, 20, { isStatic: true });
+// 天井にゲームオーバーラインを追加
+const gameOverLine = Bodies.rectangle(width / 2, 20, width, 5, { isStatic: true, render: { fillStyle: '#ff0000' } });
 
-// 床と壁と天井をワールドに追加
-World.add(engine.world, [ground, leftWall, rightWall, ceiling]);
+// 床と壁をワールドに追加
+World.add(engine.world, [ground, leftWall, rightWall, gameOverLine]);
 
 // 2つのオブジェクトが衝突した時に呼ばれる関数
 function mergeBodies(pair) {
@@ -181,7 +183,7 @@ function handleCeilingCollision(pair) {
     const bodyA = pair.bodyA;
     const bodyB = pair.bodyB;
 
-    if (bodyA === ceiling || bodyB === ceiling) {
+    if (bodyA === gameOverLine || bodyB === gameOverLine) {
         endGame();
     }
 }
@@ -192,7 +194,7 @@ Events.on(engine, 'collisionStart', event => {
     pairs.forEach(pair => {
         if (pair.bodyA.label === pair.bodyB.label) {
             mergeBodies(pair);
-        } else if (pair.bodyA === ceiling || pair.bodyB === ceiling) {
+        } else if (pair.bodyA === gameOverLine || pair.bodyB === gameOverLine) {
             handleCeilingCollision(pair);
         }
     });
