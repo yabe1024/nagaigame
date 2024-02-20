@@ -122,7 +122,7 @@ var render = Render.create({
     element: document.getElementById('game-container'), // レンダリングする要素を指定
     engine: engine,
     options: { 
-        wireframes: true, // ワイヤーフレーム表示を有効にする
+        wireframes: false, // ワイヤーフレーム表示を有効にする
         wireframeLineWidth: 2, // ワイヤーフレームの線の幅を指定
         wireframeLineColor: '#ff0000', // ワイヤーフレームの線の色を指定
         background: 'img/game2202-.jpg' // 背景画像のパスを指定
