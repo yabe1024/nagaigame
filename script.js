@@ -83,7 +83,9 @@ function createRandomFallingObject(x, y) {
             // スケールを計算（オブジェクトのサイズに合わせる）
             const scale = objectDef.size * 2 / Math.max(objectDef.originalWidth, objectDef.originalHeight);
 
-            const object = Bodies.circle(x, y, objectDef.size, {
+            // 出現位置の調整
+            const offsetY = 60; // 下へのオフセット
+            const object = Bodies.circle(x, y + offsetY, objectDef.size, {
                 label: objectDef.label,
                 isStatic: true,
                 render: {
@@ -113,8 +115,6 @@ function getNextObjectDefinition(label) {
     return null;
 }
 
-
-
 // エンジンとレンダラーを作成
 var engine = Engine.create();
 var render = Render.create({
@@ -125,8 +125,6 @@ var render = Render.create({
         background: 'img/game2202-.jpg' // 背景画像のパスを指定
     }
 });
-
-
 
 // 画面の幅と高さを取得
 const width = render.options.width;
@@ -142,7 +140,6 @@ const ceiling = Bodies.rectangle(width / 2, 0, width, 20, { isStatic: true });
 
 // 床と壁と天井をワールドに追加
 World.add(engine.world, [ground, leftWall, rightWall, ceiling]);
-
 
 // 2つのオブジェクトが衝突した時に呼ばれる関数
 function mergeBodies(pair) {
@@ -179,15 +176,34 @@ function mergeBodies(pair) {
     }
 }
 
-// オブジェクトが衝突した時にイベントリスナーを設定
+// 天井にオブジェクトが衝突した時に呼ばれる関数
+function handleCeilingCollision(pair) {
+    const bodyA = pair.bodyA;
+    const bodyB = pair.bodyB;
+
+    if (bodyA === ceiling || bodyB === ceiling) {
+        endGame();
+    }
+}
+
+// 衝突イベントリスナーに天井との衝突を監視する処理を追加
 Events.on(engine, 'collisionStart', event => {
     const pairs = event.pairs;
     pairs.forEach(pair => {
         if (pair.bodyA.label === pair.bodyB.label) {
             mergeBodies(pair);
+        } else if (pair.bodyA === ceiling || pair.bodyB === ceiling) {
+            handleCeilingCollision(pair);
         }
     });
 });
+
+// ゲームオーバー時の処理
+function endGame() {
+    // ここにゲームオーバー時の処理を記述（例: メッセージを表示、ページをリロード）
+    alert("Game Over! Your total score is: " + total_score);
+    location.reload(); // ページをリロード
+}
 
 // 初期の落下オブジェクトを作成
 let nextObject = createRandomFallingObject(width / 2, 30);
@@ -228,13 +244,11 @@ window.addEventListener('keydown', event => {
     }
 });
 
-
 // スペースキーのデフォルトの動作を無効化する関数
 function preventSpacebarScroll(event) {
     if (event.code === 'Space') {
         event.preventDefault(); // デフォルトのスクロール動作を無効化
     }
-    
 }
 function preventSpacebarScroll(event) {
     if (event.code === 'ArrowDown') {
@@ -244,10 +258,6 @@ function preventSpacebarScroll(event) {
 
 // キーボード入力イベントリスナーを設定
 window.addEventListener('keydown', preventSpacebarScroll);
-
-
-
-
 
 // レンダラーとエンジンを実行
 Render.run(render);
