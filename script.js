@@ -5,42 +5,7 @@ let total_score = 0;
 
 // オブジェクトの定義の配列
 const objectDefinitions = [
-    {
-        texture: "img/cat1_circle.png",
-        size: 25,
-        label: "cat1_circle",
-        originalWidth: 354, 
-        originalHeight: 348, 
-        score: 10,
-        probability: 0.27 // 出現確率
-    },
-    {
-        texture: "img/cat2.png",
-        size: 30,
-        label: "cat2",
-        originalWidth: 354, 
-        originalHeight: 348, 
-        score: 20,
-        probability: 0.22 // 出現確率
-    },
-    {
-        texture: "img/cat3.png",
-        size: 35,
-        label: "cat3",
-        originalWidth: 361, 
-        originalHeight: 344, 
-        score: 30,
-        probability: 0.2 // 出現確率
-    },
-    {
-        texture: "img/cat4.png",
-        size: 40,
-        label: "cat4",
-        originalWidth: 357,
-        originalHeight: 339, 
-        score: 40,
-        probability: 0.15 // 出現確率
-    },
+   
     {
         texture: "img/cat5.png",
         size: 50,
@@ -48,7 +13,7 @@ const objectDefinitions = [
         originalWidth: 366,
         originalHeight: 355,
         score: 50,
-        probability: 0.16 // 出現確率
+        probability: 100 // 出現確率
     },
     {
         texture: "img/cat6.png",
@@ -57,7 +22,7 @@ const objectDefinitions = [
         originalWidth: 349,
         originalHeight: 338,
         score: 60,
-        probability: 0.0 // 出現確率
+        probability: 0 // 出現確率
     },
     {
         texture: "img/cat7.png",
@@ -66,7 +31,7 @@ const objectDefinitions = [
         originalWidth: 362,
         originalHeight: 362,
         score: 70,
-        probability: 0.0 // 出現確率
+        probability: 0 // 出現確率
     },
 ];
 
@@ -128,6 +93,28 @@ var render = Render.create({
         background: 'img/game2202-.jpg' // 背景画像のパスを指定
     }
 });
+
+// ゲームオーバー時に全画面で表示する div 要素を作成
+const gameOverDiv = document.createElement('div');
+gameOverDiv.id = 'game-over';
+gameOverDiv.style.display = 'none'; // 初期状態では非表示
+
+// ゲームオーバー画像を表示する img 要素を作成し、div 要素に追加
+const gameOverImage = document.createElement('img');
+gameOverImage.src = 'img/game1.jpg'; // ゲームオーバー画像のパスを指定
+gameOverDiv.appendChild(gameOverImage);
+
+// body 要素に全画面表示用の div 要素を追加
+document.body.appendChild(gameOverDiv);
+
+// ゲームオーバー時の処理
+function endGame() {
+    // ゲームオーバー画面を表示
+    gameOverDiv.style.display = 'block';
+    // ゲーム画面を非表示
+    document.getElementById('game-container').style.display = 'none';
+}
+
 
 // 画面の幅と高さを取得
 const width = render.options.width;
@@ -200,13 +187,6 @@ Events.on(engine, 'collisionStart', event => {
         }
     });
 });
-
-// ゲームオーバー時の処理
-function endGame() {
-    // ここにゲームオーバー時の処理を記述（例: メッセージを表示、ページをリロード）
-    alert("Game Over! Your total score is: " + total_score);
-    location.reload(); // ページをリロード
-}
 
 // 初期の落下オブジェクトを作成
 let nextObject = createRandomFallingObject(width / 2, 30);
