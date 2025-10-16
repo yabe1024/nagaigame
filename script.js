@@ -161,7 +161,7 @@ const leftWall = Bodies.rectangle(0, height / 2, 20, height, { isStatic: true })
 const rightWall = Bodies.rectangle(width, height / 2, 20, height, { isStatic: true });
 
 // 天井にゲームオーバーラインを追加
-const gameOverLine = Bodies.rectangle(width / 2, 60, width, 5, { isStatic: true, render: { fillStyle: '#ff0000' } });
+const gameOverLine = Bodies.rectangle(width / 2, 20, width, 5, { isStatic: true, render: { fillStyle: '#ff0000' } });
 
 // 床と壁をワールドに追加
 World.add(engine.world, [ground, leftWall, rightWall, gameOverLine]);
@@ -280,4 +280,5 @@ window.addEventListener('keydown', preventSpacebarScroll);
 // レンダラーとエンジンを実行
 Render.run(render);
 Engine.run(engine);
+
 
