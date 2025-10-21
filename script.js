@@ -1,3 +1,4 @@
+// Matter.js モジュール
 const { Engine, Render, World, Bodies, Body, Events, Composite } = Matter;
 const gameOverSound = new Audio('sound/うわわ.mp3');
 let total_score = 0, enemyScore = 0;
@@ -32,14 +33,20 @@ document.getElementById("joinRoom").onclick = () => {
     });
 };
 
+// 接続確立後
 function setupConnection() {
     alert("接続完了！");
     conn.on("data", data => {
         if(data.type==="scoreUpdate"){
             enemyScore = data.value;
             document.getElementById("enemyScoreDisplay").textContent = enemyScore;
+        } else if(data.type==="maxObjectReached"){
+            // 相手が最大オブジェクト達成 → ランダムボール出現
+            spawnRandomBalls(3);
         }
     });
+
+    // canvas生成待機後、画面共有開始
     const canvasCheck = setInterval(() => {
         const canvas = document.querySelector("canvas");
         if(canvas && canvas.captureStream){
@@ -49,9 +56,16 @@ function setupConnection() {
     }, 100);
 }
 
+// スコア送信
 function sendScore(score){
     if(conn && conn.open) conn.send({ type:"scoreUpdate", value:score });
 }
+
+// 最大オブジェクト達成通知
+function notifyMaxObjectReached(){
+    if(conn && conn.open) conn.send({ type:"maxObjectReached" });
+}
+
 
 // オブジェクトの定義の配列
 const objectDefinitions = [
@@ -105,24 +119,51 @@ const render = Render.create({
     options:{ wireframes:false, width:600, height:650, background:"img/game2202-.jpg" }
 });
 
-const width = render.options.width, height=render.options.height;
+const width = render.options.width, height = render.options.height;
 const ground = Bodies.rectangle(width/2,height,width,20,{isStatic:true});
 const leftWall = Bodies.rectangle(0,height/2,20,height,{isStatic:true});
 const rightWall = Bodies.rectangle(width,height/2,20,height,{isStatic:true});
 const gameOverLine = Bodies.rectangle(width/2,20,width,5,{isStatic:true, render:{ fillStyle:"#ff0000" }});
 World.add(engine.world,[ground,leftWall,rightWall,gameOverLine]);
 
+// ランダムボール出現（スコア対象外）
+function spawnRandomBalls(count){
+    for(let i=0;i<count;i++){
+        const x = Math.random()*width;
+        const y = 0;
+        const radius = 20 + Math.random()*15;
+        const ball = Bodies.circle(x,y,radius,{
+            label:"bonusBall",    // スコア対象外ラベル
+            restitution:0.8,
+            render:{ fillStyle:"#FFD700" }
+        });
+        World.add(engine.world,ball);
+    }
+}
+
+// --- 衝突処理 ---
 function mergeBodies(pair){
     const a=pair.bodyA, b=pair.bodyB;
+
+    // bonusBall はスコア対象外
+    if(a.label==="bonusBall" || b.label==="bonusBall") return;
+
     if(a.label===b.label){
         const next=getNextObjectDefinition(a.label);
         if(next){
-            total_score+=next.score; updateScoreDisplay();
-            const x=(a.position.x+b.position.x)/2, y=(a.position.y+b.position.y)/2;
-            const scale=next.size*2/Math.max(next.originalWidth,next.originalHeight);
-            const newBody=Bodies.circle(x,y,next.size,{label:next.label, render:{sprite:{texture:next.texture,xScale:scale,yScale:scale}}});
+            total_score += next.score;
+            updateScoreDisplay();
+            const x=(a.position.x+b.position.x)/2;
+            const y=(a.position.y+b.position.y)/2;
+            const scale = next.size*2/Math.max(next.originalWidth,next.originalHeight);
+            const newBody = Bodies.circle(x,y,next.size,{
+                label: next.label,
+                render:{ sprite:{ texture:next.texture, xScale:scale, yScale:scale } }
+            });
             World.remove(engine.world,[a,b]);
             World.add(engine.world,newBody);
+
+            if(next.label==="cat7") notifyMaxObjectReached();
         }
     }
 }
@@ -138,6 +179,7 @@ Events.on(engine,"collisionStart",e=>{
     });
 });
 
+// --- 操作 ---
 let nextObject=createRandomFallingObject(width/2,30), isFalling=false;
 World.add(engine.world,nextObject);
 
@@ -160,6 +202,13 @@ window.addEventListener("keydown", e=>{
 });
 
 function updateScoreDisplay(){ $("#score-value").text(total_score); sendScore(total_score); }
-function endGame(){ gameOverSound.currentTime=0; gameOverSound.play(); gameOverSound.volume=1; alert("ゲームオーバー！スコア: "+total_score); document.getElementById("game-container").style.display="none"; }
+function endGame(){ 
+    gameOverSound.currentTime=0; 
+    gameOverSound.play(); 
+    gameOverSound.volume=1; 
+    alert("ゲームオーバー！スコア: "+total_score); 
+    document.getElementById("game-container").style.display="none"; 
+}
 
-Render.run(render); Engine.run(engine);
+Render.run(render); 
+Engine.run(engine);
