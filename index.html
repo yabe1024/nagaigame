@@ -1,52 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>長井ゲーム</title>
-    <style>
-            body {
-        background-color: #222; /* 背景色を暗くする */
-    }
-    canvas {
-            width: 600px; /* ゲーム画面の幅 */
-            height: 650px; /* ゲーム画面の高さ */
-        }
-        #score {
-            position: absolute;
-            top: 20px; /* 上端からの距離 */
-            left: 20px; /* 左端からの距離 */
-            color: white; /* テキストの色 */
-            font-size: 24px; /* フォントサイズ */
-        }
-    </style>
-    <script src="./matter.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>長井ゲーム（オンライン対戦版）</title>
+<style>
+body { background:#222; color:white; font-family:sans-serif; margin:0; }
+#container { display:flex; gap:20px; padding:20px; }
+#game-container, #enemy-container { position:relative; }
+canvas { width:600px; height:650px; border:2px solid white; border-radius:8px; }
+#score, #enemyScore { font-size:24px; margin-bottom:10px; }
+#enemyVideo { width:300px; height:300px; border:2px solid white; border-radius:8px; background:black; }
+#controlPanel { margin-bottom:10px; }
+#controlPanel input, #controlPanel button { margin:4px; padding:6px 10px; font-size:16px; }
+</style>
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<script src="matter.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.js"></script>
 </head>
 <body>
-    <div id="score">スコア: <span id="score-value">0</span></div>
-    <div id="game-container"></div>
-    <script src="./script.js"></script>
-    <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
-    <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
-    <script async src="https://fam.adingo.jp/bid-strap/suika-game/pb.js"></script>
-    <script>
-        // ウィンドウのリサイズイベントをリッスンする
-        window.addEventListener('resize', function() {
-            // 新しいcanvasのサイズを取得する
-            var canvasWidth = window.innerWidth; // 例としてウィンドウの幅をcanvasの幅に設定する
 
-            // Matter.jsのエンジンとレンダラーのcanvasのサイズを更新する
-            Render.canvas.width = canvasWidth;
-            Engine.render.canvas.width = canvasWidth;
+<div id="controlPanel">
+    <button id="createRoom">ルーム作成</button>
+    <input id="joinId" placeholder="相手のIDを入力">
+    <button id="joinRoom">接続</button><br>
+    あなたのID: <span id="myId">未発行</span>
+</div>
 
-            // Matter.jsのエンジンとレンダラーに変更を適用する
-            Engine.render.bounds.max.x = canvasWidth;
-            Engine.render.bounds.min.x = 0;
+<div id="container">
+    <div id="game-container">
+        <div id="score">スコア: <span id="score-value">0</span></div>
+    </div>
+    <div id="enemy-container">
+        <div id="enemyScore">相手スコア: <span id="enemyScoreDisplay">0</span></div>
+        <video id="enemyVideo" autoplay playsinline></video>
+    </div>
+</div>
 
-            // オブジェクトの位置やサイズを新しいcanvasのサイズに合わせて再計算する
-            // 例えば、オブジェクトの位置を調整する必要がある場合はここで行う
-            // この部分は、ゲームの具体的な要件に応じて適切な方法で実装する必要がある
-        });
-    </script>
+<script src="script.js"></script>
 </body>
 </html>
