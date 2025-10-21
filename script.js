@@ -126,13 +126,14 @@ const rightWall = Bodies.rectangle(width,height/2,20,height,{isStatic:true});
 const gameOverLine = Bodies.rectangle(width/2,20,width,5,{isStatic:true, render:{ fillStyle:"#ff0000" }});
 World.add(engine.world,[ground,leftWall,rightWall,gameOverLine]);
 
-// ランダムボール出現（スコア対象外）
 function spawnRandomBalls(count){
+    const minY = gameOverLine.position.y + 20; // ゲームオーバーラインより下
+    const maxY = render.options.height / 2;   // 画面上半分の適当な範囲
     for(let i=0;i<count;i++){
-        const x = Math.random()*width;
-        const y = 50;
+        const x = Math.random() * width;
+        const y = minY + Math.random() * (maxY - minY);
         const radius = 20 + Math.random()*15;
-        const ball = Bodies.circle(x,y,radius,{
+        const ball = Bodies.circle(x, y, radius, {
             label:"bonusBall",    // スコア対象外ラベル
             restitution:0.8,
             render:{ fillStyle:"#FFD700" }
@@ -140,6 +141,7 @@ function spawnRandomBalls(count){
         World.add(engine.world,ball);
     }
 }
+
 
 // --- 衝突処理 ---
 function mergeBodies(pair){
@@ -212,4 +214,5 @@ function endGame(){
 
 Render.run(render); 
 Engine.run(engine);
+
 
