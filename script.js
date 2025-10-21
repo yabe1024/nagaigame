@@ -1,13 +1,13 @@
-// Matter.js モジュール
+// --- Matter.js モジュール ---
 const { Engine, Render, World, Bodies, Body, Events, Composite } = Matter;
 const gameOverSound = new Audio('sound/うわわ.mp3');
 let total_score = 0, enemyScore = 0;
-
 let peer, conn;
 
 // --- PeerJS ルーム作成・接続 ---
 document.getElementById("createRoom").onclick = () => {
-    peer = new Peer();
+    const myIdInput = document.getElementById("myCustomId").value.trim();
+    peer = myIdInput ? new Peer(myIdInput) : new Peer();
     peer.on("open", id => {
         document.getElementById("myId").textContent = id;
         alert("このIDを相手に送ってください: " + id);
@@ -41,7 +41,6 @@ function setupConnection() {
             enemyScore = data.value;
             document.getElementById("enemyScoreDisplay").textContent = enemyScore;
         } else if(data.type==="maxObjectReached"){
-            // 相手が最大オブジェクト達成 → ランダムボール出現
             spawnRandomBalls(3);
         }
     });
@@ -66,8 +65,7 @@ function notifyMaxObjectReached(){
     if(conn && conn.open) conn.send({ type:"maxObjectReached" });
 }
 
-
-// オブジェクトの定義の配列
+// --- オブジェクト定義 ---
 const objectDefinitions = [
     { texture: "img/cat1_circle.png", size: 25, label: "cat1_circle", originalWidth: 354, originalHeight: 348, score: 10, probability: 0.27 },
     { texture: "img/cat2.png", size: 30, label: "cat2", originalWidth: 354, originalHeight: 348, score: 20, probability: 0.22 },
@@ -77,39 +75,6 @@ const objectDefinitions = [
     { texture: "img/cat6.png", size: 60, label: "cat6", originalWidth: 349, originalHeight: 338, score: 60, probability: 0 },
     { texture: "img/cat7.png", size: 80, label: "cat7", originalWidth: 362, originalHeight: 362, score: 70, probability: 0 },
 ];
-
-// ランダムな落下オブジェクト生成
-function createRandomFallingObject(x, y) {
-    let rand = Math.random();
-    let cumulativeProbability = 0;
-    let filteredDefinitions = objectDefinitions.filter(def => def.label !== 'cat6' && def.label !== 'cat7');
-
-    for (let i = 0; i < filteredDefinitions.length; i++) {
-        cumulativeProbability += filteredDefinitions[i].probability;
-        if (rand < cumulativeProbability) {
-            const objectDef = filteredDefinitions[i];
-            const scale = objectDef.size * 2 / Math.max(objectDef.originalWidth, objectDef.originalHeight);
-            const offsetY = 50;
-            const object = Bodies.circle(x, y + offsetY, objectDef.size, {
-                label: objectDef.label,
-                isStatic: true,
-                render: { sprite: { texture: objectDef.texture, xScale: scale, yScale: scale } }
-            });
-            return object;
-        }
-    }
-}
-
-// 次のオブジェクト定義を取得
-function getNextObjectDefinition(label) {
-    for (let i = 0; i < objectDefinitions.length; i++) {
-        if (objectDefinitions[i].label === label) {
-            if (i === objectDefinitions.length - 1) return null;
-            return objectDefinitions[(i + 1) % objectDefinitions.length];
-        }
-    }
-    return null;
-}
 
 // --- Matter.js エンジン設定 ---
 const engine = Engine.create();
@@ -126,30 +91,52 @@ const rightWall = Bodies.rectangle(width,height/2,20,height,{isStatic:true});
 const gameOverLine = Bodies.rectangle(width/2,20,width,5,{isStatic:true, render:{ fillStyle:"#ff0000" }});
 World.add(engine.world,[ground,leftWall,rightWall,gameOverLine]);
 
+// --- ランダム落下ボール ---
+function createRandomFallingObject(x, y) {
+    let rand = Math.random();
+    let cumulativeProbability = 0;
+    let filteredDefinitions = objectDefinitions.filter(def => def.label !== 'cat6' && def.label !== 'cat7');
+    for (let i = 0; i < filteredDefinitions.length; i++) {
+        cumulativeProbability += filteredDefinitions[i].probability;
+        if (rand < cumulativeProbability) {
+            const obj = filteredDefinitions[i];
+            const scale = obj.size * 2 / Math.max(obj.originalWidth,obj.originalHeight);
+            return Bodies.circle(x, y+50, obj.size, {label: obj.label, isStatic:true, render:{ sprite:{texture:obj.texture,xScale:scale,yScale:scale} } });
+        }
+    }
+}
+
+// 次のオブジェクト定義
+function getNextObjectDefinition(label){
+    for(let i=0;i<objectDefinitions.length;i++){
+        if(objectDefinitions[i].label===label){
+            if(i===objectDefinitions.length-1) return null;
+            return objectDefinitions[(i+1)%objectDefinitions.length];
+        }
+    }
+    return null;
+}
+
+// --- ボーナスボール生成 ---
 function spawnRandomBalls(count){
-    const minY = gameOverLine.position.y + 20; // ゲームオーバーラインより下
-    const maxY = render.options.height / 2;   // 画面上半分の適当な範囲
+    const minY = gameOverLine.position.y+20;
+    const maxY = render.options.height/2;
     for(let i=0;i<count;i++){
-        const x = Math.random() * width;
-        const y = minY + Math.random() * (maxY - minY);
+        const x=Math.random()*width;
+        const y=minY + Math.random()*(maxY-minY);
         const radius = 20 + Math.random()*15;
-        const ball = Bodies.circle(x, y, radius, {
-            label:"bonusBall",    // スコア対象外ラベル
-            restitution:0.8,
+        const ball = Bodies.circle(x,y,radius,{
+            label:"bonusBall", restitution:0.8,
             render:{ fillStyle:"#FFD700" }
         });
         World.add(engine.world,ball);
     }
 }
 
-
 // --- 衝突処理 ---
 function mergeBodies(pair){
     const a=pair.bodyA, b=pair.bodyB;
-
-    // bonusBall はスコア対象外
     if(a.label==="bonusBall" || b.label==="bonusBall") return;
-
     if(a.label===b.label){
         const next=getNextObjectDefinition(a.label);
         if(next){
@@ -158,13 +145,9 @@ function mergeBodies(pair){
             const x=(a.position.x+b.position.x)/2;
             const y=(a.position.y+b.position.y)/2;
             const scale = next.size*2/Math.max(next.originalWidth,next.originalHeight);
-            const newBody = Bodies.circle(x,y,next.size,{
-                label: next.label,
-                render:{ sprite:{ texture:next.texture, xScale:scale, yScale:scale } }
-            });
+            const newBody = Bodies.circle(x,y,next.size,{label: next.label, render:{ sprite:{ texture:next.texture, xScale:scale, yScale:scale} }});
             World.remove(engine.world,[a,b]);
             World.add(engine.world,newBody);
-
             if(next.label==="cat7") notifyMaxObjectReached();
         }
     }
@@ -203,16 +186,62 @@ window.addEventListener("keydown", e=>{
     }
 });
 
-function updateScoreDisplay(){ $("#score-value").text(total_score); sendScore(total_score); }
+// --- スコア更新 ---
+function updateScoreDisplay(){ 
+    $("#score-value").text(total_score); 
+    sendScore(total_score); 
+}
+
+// --- ランキング管理 ---
+function saveScore(score){
+    let scores = JSON.parse(localStorage.getItem("ranking") || "[]");
+    scores.push(score);
+    scores.sort((a,b)=>b-a); // 高い順
+    if(scores.length>10) scores=scores.slice(0,10);
+    localStorage.setItem("ranking",JSON.stringify(scores));
+    updateRankingDisplay();
+}
+
+function updateRankingDisplay(){
+    let rankingList = document.getElementById("rankingList");
+    if(!rankingList) return;
+    const scores = JSON.parse(localStorage.getItem("ranking") || "[]");
+    rankingList.innerHTML="";
+    scores.forEach((s,i)=>{
+        const li=document.createElement("li");
+        li.textContent=s;
+        rankingList.appendChild(li);
+    });
+}
+
+// --- ゲームオーバー ---
 function endGame(){ 
     gameOverSound.currentTime=0; 
     gameOverSound.play(); 
     gameOverSound.volume=1; 
     alert("ゲームオーバー！スコア: "+total_score); 
     document.getElementById("game-container").style.display="none"; 
+    saveScore(total_score);
 }
 
+// --- ランキングパネル生成 ---
+const rankingPanel=document.createElement("div");
+rankingPanel.id="rankingPanel";
+Object.assign(rankingPanel.style,{
+    position:"absolute",
+    top:"420px",
+    right:"20px",
+    width:"300px",
+    background:"rgba(0,0,0,0.6)",
+    color:"white",
+    padding:"10px",
+    borderRadius:"8px",
+    fontSize:"16px"
+});
+rankingPanel.innerHTML='<h3>ランキング</h3><ol id="rankingList"></ol>';
+document.body.appendChild(rankingPanel);
+updateRankingDisplay();
+
+// --- エンジン開始 ---
 Render.run(render); 
 Engine.run(engine);
-
-
