@@ -53,7 +53,7 @@ function sendScore(score){
     if(conn && conn.open) conn.send({ type:"scoreUpdate", value:score });
 }
 
-// --- ゲームロジック ---
+// オブジェクトの定義の配列
 const objectDefinitions = [
     { texture: "img/cat1_circle.png", size: 25, label: "cat1_circle", originalWidth: 354, originalHeight: 348, score: 10, probability: 0.27 },
     { texture: "img/cat2.png", size: 30, label: "cat2", originalWidth: 354, originalHeight: 348, score: 20, probability: 0.22 },
@@ -64,23 +64,37 @@ const objectDefinitions = [
     { texture: "img/cat7.png", size: 80, label: "cat7", originalWidth: 362, originalHeight: 362, score: 70, probability: 0 },
 ];
 
-function createRandomFallingObject(x,y){
-    let rand=Math.random(), cum=0;
-    for(const def of objectDefinitions){
-        cum += def.probability;
-        if(rand<cum){
-            const scale = def.size*2/Math.max(def.originalWidth, def.originalHeight);
-            return Bodies.circle(x,y+50,def.size,{
-                label:def.label, isStatic:true, render:{ sprite:{ texture:def.texture, xScale:scale, yScale:scale }}
+// ランダムな落下オブジェクト生成
+function createRandomFallingObject(x, y) {
+    let rand = Math.random();
+    let cumulativeProbability = 0;
+    let filteredDefinitions = objectDefinitions.filter(def => def.label !== 'cat6' && def.label !== 'cat7');
+
+    for (let i = 0; i < filteredDefinitions.length; i++) {
+        cumulativeProbability += filteredDefinitions[i].probability;
+        if (rand < cumulativeProbability) {
+            const objectDef = filteredDefinitions[i];
+            const scale = objectDef.size * 2 / Math.max(objectDef.originalWidth, objectDef.originalHeight);
+            const offsetY = 50;
+            const object = Bodies.circle(x, y + offsetY, objectDef.size, {
+                label: objectDef.label,
+                isStatic: true,
+                render: { sprite: { texture: objectDef.texture, xScale: scale, yScale: scale } }
             });
+            return object;
         }
     }
 }
 
-function getNextObjectDefinition(label){
-    const i = objectDefinitions.findIndex(o=>o.label===label);
-    if(i===-1||i===objectDefinitions.length-1) return null;
-    return objectDefinitions[i+1];
+// 次のオブジェクト定義を取得
+function getNextObjectDefinition(label) {
+    for (let i = 0; i < objectDefinitions.length; i++) {
+        if (objectDefinitions[i].label === label) {
+            if (i === objectDefinitions.length - 1) return null;
+            return objectDefinitions[(i + 1) % objectDefinitions.length];
+        }
+    }
+    return null;
 }
 
 // --- Matter.js エンジン設定 ---
