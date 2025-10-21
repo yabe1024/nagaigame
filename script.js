@@ -55,11 +55,13 @@ function sendScore(score){
 
 // --- ゲームロジック ---
 const objectDefinitions = [
-    { texture:"img/cat1_circle.png", size:25, label:"cat1_circle", originalWidth:354, originalHeight:348, score:10, probability:0.27 },
-    { texture:"img/cat2.png", size:30, label:"cat2", originalWidth:354, originalHeight:348, score:20, probability:0.22 },
-    { texture:"img/cat3.png", size:35, label:"cat3", originalWidth:361, originalHeight:344, score:30, probability:0.2 },
-    { texture:"img/cat4.png", size:40, label:"cat4", originalWidth:357, originalHeight:339, score:40, probability:0.16 },
-    { texture:"img/cat5.png", size:50, label:"cat5", originalWidth:366, originalHeight:355, score:50, probability:0.15 }
+    { texture: "img/cat1_circle.png", size: 25, label: "cat1_circle", originalWidth: 354, originalHeight: 348, score: 10, probability: 0.27 },
+    { texture: "img/cat2.png", size: 30, label: "cat2", originalWidth: 354, originalHeight: 348, score: 20, probability: 0.22 },
+    { texture: "img/cat3.png", size: 35, label: "cat3", originalWidth: 361, originalHeight: 344, score: 30, probability: 0.2 },
+    { texture: "img/cat4.png", size: 40, label: "cat4", originalWidth: 357, originalHeight: 339, score: 40, probability: 0.16 },
+    { texture: "img/cat5.png", size: 50, label: "cat5", originalWidth: 366, originalHeight: 355, score: 50, probability: 0.15 },
+    { texture: "img/cat6.png", size: 60, label: "cat6", originalWidth: 349, originalHeight: 338, score: 60, probability: 0 },
+    { texture: "img/cat7.png", size: 80, label: "cat7", originalWidth: 362, originalHeight: 362, score: 70, probability: 0 },
 ];
 
 function createRandomFallingObject(x,y){
