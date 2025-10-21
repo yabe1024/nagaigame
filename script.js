@@ -130,7 +130,7 @@ World.add(engine.world,[ground,leftWall,rightWall,gameOverLine]);
 function spawnRandomBalls(count){
     for(let i=0;i<count;i++){
         const x = Math.random()*width;
-        const y = 0;
+        const y = 50;
         const radius = 20 + Math.random()*15;
         const ball = Bodies.circle(x,y,radius,{
             label:"bonusBall",    // スコア対象外ラベル
@@ -212,3 +212,4 @@ function endGame(){
 
 Render.run(render); 
 Engine.run(engine);
+
