@@ -12,40 +12,40 @@ function generateUUID() {
 
 // --- PeerJS ルーム作成・接続 ---
 document.getElementById("createRoom").onclick = () => {
-    const roomName = prompt("ルーム名を入力してください"); // ルーム名入力
+    const roomName = prompt("ルーム名を入力してください");
     if(!roomName) return alert("ルーム名を入力してください");
-    
-    const myId = generateUUID(); // 固有ID生成
-    peer = new Peer(myId, { host: 'peerjs.com', port: 443, secure: true }); // PeerJS Cloud Server利用
+
+    const myId = generateUUID(); // UUIDで固有ID
+    peer = new Peer(myId, { host: 'peerjs.com', port: 443, secure: true });
 
     peer.on("open", id => {
         document.getElementById("myId").textContent = id;
         alert(`ルーム「${roomName}」作成完了！ このIDを相手に送ってください: ${id}`);
     });
 
-    peer.on("connection", c => { 
-        if(c.metadata?.roomName !== roomName) return c.close(); // 違うルームなら切断
+    peer.on("connection", c => {
         conn = c; 
-        setupConnection(); 
+        setupConnection(); // 接続確立後の処理
     });
 
     peer.on("call", call => {
-        call.answer(); 
+        call.answer();
         call.on("stream", stream => document.getElementById("enemyVideo").srcObject = stream);
     });
 };
 
-
 document.getElementById("joinRoom").onclick = () => {
-    const roomName = prompt("参加するルーム名を入力してください");
-    const targetId = document.getElementById("joinId").value.trim(); // 作成者のUUID
-    if (!roomName || !targetId) return alert("ルーム名と相手のIDを入力してください");
+    const targetId = document.getElementById("joinId").value.trim(); // 作成者の PeerID
+    if(!targetId) return alert("相手のIDを入力してください");
 
-    const myId = generateUUID();
+    const roomName = prompt("参加するルーム名を入力してください");
+    if(!roomName) return alert("ルーム名を入力してください");
+
+    const myId = generateUUID(); // UUIDで固有ID
     peer = new Peer(myId, { host: 'peerjs.com', port: 443, secure: true });
 
     peer.on("open", () => {
-        conn = peer.connect(targetId, { metadata: { roomName: roomName } }); // ルーム名を渡す
+        conn = peer.connect(targetId);
         conn.on("open", setupConnection);
 
         peer.on("call", call => {
