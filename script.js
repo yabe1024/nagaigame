@@ -4,57 +4,34 @@ const gameOverSound = new Audio('sound/うわわ.mp3');
 let total_score = 0, enemyScore = 0;
 let peer, conn;
 
-// ランダムUUID生成（各端末固有のID）
-function generateUUID() {
-    return 'xxxx-xxxx-xxxx'.replace(/[x]/g, () => ((Math.random() * 16) | 0).toString(16));
-}
-
-
 // --- PeerJS ルーム作成・接続 ---
 document.getElementById("createRoom").onclick = () => {
-    const roomName = prompt("ルーム名を入力してください");
-    if(!roomName) return alert("ルーム名を入力してください");
-
-    const myId = generateUUID(); // UUIDで固有ID
-    peer = new Peer(myId, { host: 'peerjs.com', port: 443, secure: true });
-
+    const myIdInput = document.getElementById("myCustomId").value.trim();
+    peer = myIdInput ? new Peer(myIdInput) : new Peer();
     peer.on("open", id => {
         document.getElementById("myId").textContent = id;
-        alert(`ルーム「${roomName}」作成完了！ このIDを相手に送ってください: ${id}`);
+        alert("このIDを相手に送ってください: " + id);
     });
-
-    peer.on("connection", c => {
-        conn = c; 
-        setupConnection(); // 接続確立後の処理
-    });
-
+    peer.on("connection", c => { conn = c; setupConnection(); });
     peer.on("call", call => {
-        call.answer();
+        call.answer(); 
         call.on("stream", stream => document.getElementById("enemyVideo").srcObject = stream);
     });
 };
 
 document.getElementById("joinRoom").onclick = () => {
-    const targetId = document.getElementById("joinId").value.trim(); // 作成者の PeerID
-    if(!targetId) return alert("相手のIDを入力してください");
-
-    const roomName = prompt("参加するルーム名を入力してください");
-    if(!roomName) return alert("ルーム名を入力してください");
-
-    const myId = generateUUID(); // UUIDで固有ID
-    peer = new Peer(myId, { host: 'peerjs.com', port: 443, secure: true });
-
+    const targetId = document.getElementById("joinId").value.trim();
+    if (!targetId) return alert("相手のIDを入力してください");
+    peer = new Peer();
     peer.on("open", () => {
         conn = peer.connect(targetId);
         conn.on("open", setupConnection);
-
         peer.on("call", call => {
             call.answer();
             call.on("stream", stream => document.getElementById("enemyVideo").srcObject = stream);
         });
     });
 };
-
 
 // 接続確立後
 function setupConnection() {
@@ -268,4 +245,3 @@ updateRankingDisplay();
 // --- エンジン開始 ---
 Render.run(render); 
 Engine.run(engine);
-
