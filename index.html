@@ -1,56 +1,68 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>長井ゲーム（オンライン対戦版）</title>
-    <style>
-        body { background-color: #222; margin: 0; overflow: hidden; color: white; font-family: sans-serif; }
-        #game-container { display: inline-block; vertical-align: top; margin-left: 20px; }
-        canvas { width: 600px; height: 650px; border: 2px solid white; border-radius: 8px; }
-        #score { position: absolute; top: 20px; left: 20px; color: white; font-size: 24px; }
-        #enemyScoreBox { position: absolute; top: 60px; left: 20px; color: #ccc; font-size: 20px; }
-        #videoContainer { position: absolute; top: 100px; right: 20px; }
-        #enemyVideo { width: 300px; height: 300px; border: 2px solid white; border-radius: 8px; background: black; }
-        #controlPanel { text-align: center; margin-top: 10px; }
-        #controlPanel input, #controlPanel button { margin: 4px; padding: 6px 10px; font-size: 16px; }
-    </style>
-
-    <!-- 必要ライブラリ -->
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script src="./matter.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.2.1.js"
-        integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
-        crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <title>オンライン対戦ルーム</title>
+  <script src="https://cdn.jsdelivr.net/npm/matter-js"></script>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <style>
+    body {
+      font-family: "Noto Sans JP", sans-serif;
+      background: #fafafa;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    #controls {
+      margin: 10px;
+    }
+    button {
+      margin: 4px;
+      padding: 6px 10px;
+      font-size: 15px;
+      border-radius: 6px;
+      border: 1px solid #aaa;
+      cursor: pointer;
+    }
+    #chatBox {
+      width: 300px;
+      height: 200px;
+      margin: 10px auto;
+      border: 1px solid #aaa;
+      background: #fff;
+      overflow-y: auto;
+      padding: 5px;
+      text-align: left;
+    }
+    #chatInput {
+      width: 220px;
+      padding: 4px;
+    }
+    canvas {
+      border: 2px solid #888;
+      margin-top: 10px;
+    }
+  </style>
 </head>
-
 <body>
-    <!-- コントロールパネル -->
-    <div id="controlPanel">
-        <input id="myCustomId" placeholder="自分のIDを入力（任意）">
-        <button id="createRoom">ルーム作成</button>
-        <input id="joinId" placeholder="相手のIDを入力">
-        <button id="joinRoom">接続</button><br>
-        あなたのID: <span id="myId">未発行</span><br>
-        相手スコア: <span id="enemyScoreDisplay">0</span>
-    </div>
+  <h2>🎮 オンライン対戦ルーム（PeerJS）</h2>
 
-    <!-- ゲーム＋相手画面を横並びにするコンテナ -->
-    <div id="game-and-enemy" style="display:flex; margin-top:10px; align-items:flex-start; gap:20px;">
-        <div id="game-container"></div>  <!-- 自分のゲーム画面 -->
-        <video id="enemyVideo" autoplay playsinline style="width:300px; height:300px; border:2px solid white; border-radius:8px; background:black;"></video>
-    </div>
+  <div id="controls">
+    <button id="createRoom">ルームを作成</button>
+    <button id="joinRoom">ルームに参加</button>
+  </div>
 
-    <!-- スコア表示 -->
-    <div id="score">スコア: <span id="score-value">0</span></div>
+  <p id="enemyScore">相手のスコア: 0</p>
 
-    <!-- ランキングは右下に固定 -->
-    <div id="rankingPanel" style="position:absolute; top:420px; right:20px; width:300px; background:rgba(0,0,0,0.6); color:white; padding:10px; border-radius:8px; font-size:16px;">
-        <h3>ランキング</h3>
-        <ol id="rankingList"></ol>
-    </div>
+  <div id="chatSection">
+    <div id="chatBox"></div>
+    <input id="chatInput" type="text" placeholder="メッセージを入力" />
+    <button id="sendChat">送信</button>
+  </div>
 
-    <script src="./script.js"></script>
+  <!-- ゲーム描画領域 -->
+  <div id="gameArea"></div>
+
+  <script src="script.js"></script>
 </body>
-
 </html>
