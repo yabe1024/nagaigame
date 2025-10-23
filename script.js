@@ -162,12 +162,21 @@ function handleCeilingCollision(pair){
     if(pair.bodyA===gameOverLine||pair.bodyB===gameOverLine) endGame();
 }
 
-Events.on(engine,"collisionStart",e=>{
-    e.pairs.forEach(p=>{
-        if(p.bodyA.label===p.bodyB.label) mergeBodies(p);
-        else if(p.bodyA===gameOverLine||p.bodyB===gameOverLine) handleCeilingCollision(p);
+Events.on(engine, "collisionStart", function(event) {
+    event.pairs.forEach(pair => {
+        const labels = [pair.bodyA.label, pair.bodyB.label];
+
+        // 👇 ゲームオーバー判定修正版
+        if (labels.includes("line")) {
+            const other = pair.bodyA.label === "line" ? pair.bodyB : pair.bodyA;
+            // 妨害ボール（例: "obstacle"）なら無視する
+            if (other.label !== "bonusBall") {
+                endGame();
+            }
+        }
     });
 });
+
 
 // --- 操作 ---
 let nextObject=createRandomFallingObject(width/2,30), isFalling=false;
@@ -290,4 +299,5 @@ function addChatMessage(sender, msg) {
 // --- エンジン開始 ---
 Render.run(render); 
 Engine.run(engine);
+
 
