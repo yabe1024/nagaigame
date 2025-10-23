@@ -43,11 +43,6 @@ function setupConnection() {
         } else if(data.type==="maxObjectReached"){
             spawnRandomBalls(3);
         }
-        else if (data.type === "enemyGameOver") {
-        alert("⚠ 相手がゲームオーバーになりました！");
-    } else if (data.type === "chatMessage") {
-        addChatMessage("👤相手", data.message);
-    }
     });
 
     // canvas生成待機後、画面共有開始
@@ -158,6 +153,16 @@ function mergeBodies(pair){
     }
 }
 
+function handleCeilingCollision(pair){
+    if(pair.bodyA===gameOverLine||pair.bodyB===gameOverLine) endGame();
+}
+
+Events.on(engine,"collisionStart",e=>{
+    e.pairs.forEach(p=>{
+        if(p.bodyA.label===p.bodyB.label) mergeBodies(p);
+        else if(p.bodyA===gameOverLine||p.bodyB===gameOverLine) handleCeilingCollision(p);
+    });
+});
 
 // --- 操作 ---
 let nextObject=createRandomFallingObject(width/2,30), isFalling=false;
@@ -217,9 +222,6 @@ function endGame(){
     alert("ゲームオーバー！スコア: "+total_score); 
     document.getElementById("game-container").style.display="none"; 
     saveScore(total_score);
-    
-    if (conn && conn.open) conn.send({ type: "enemyGameOver" });
-
 }
 
 // --- ランキングパネル生成 ---
@@ -240,47 +242,6 @@ rankingPanel.innerHTML='<h3>ランキング</h3><ol id="rankingList"></ol>';
 document.body.appendChild(rankingPanel);
 updateRankingDisplay();
 
-// --- チャット機能 ---
-const chatBox = document.createElement("div");
-Object.assign(chatBox.style, {
-    position: "absolute",
-    bottom: "10px",
-    right: "20px",
-    width: "300px",
-    background: "rgba(0,0,0,0.6)",
-    color: "white",
-    padding: "10px",
-    borderRadius: "8px",
-    fontSize: "14px"
-});
-chatBox.innerHTML = `
-    <div id="chatMessages" style="max-height:150px;overflow-y:auto;margin-bottom:5px;"></div>
-    <input id="chatInput" type="text" placeholder="メッセージを入力" style="width:70%;">
-    <button id="sendChat">送信</button>
-`;
-document.body.appendChild(chatBox);
-
-document.getElementById("sendChat").onclick = () => {
-    const msg = document.getElementById("chatInput").value.trim();
-    if (!msg || !conn || !conn.open) return;
-    conn.send({ type: "chatMessage", message: msg });
-    addChatMessage("🟢あなた", msg);
-    document.getElementById("chatInput").value = "";
-};
-
-function addChatMessage(sender, msg) {
-    const box = document.getElementById("chatMessages");
-    const div = document.createElement("div");
-    div.textContent = `${sender}: ${msg}`;
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-}
-
-
 // --- エンジン開始 ---
 Render.run(render); 
 Engine.run(engine);
-
-
-
-
