@@ -158,11 +158,6 @@ function mergeBodies(pair){
     }
 }
 
-function handleCeilingCollision(pair){
-    if(pair.bodyA===gameOverLine||pair.bodyB===gameOverLine) endGame();
-}
-
-
 
 // --- 操作 ---
 let nextObject=createRandomFallingObject(width/2,30), isFalling=false;
@@ -285,6 +280,7 @@ function addChatMessage(sender, msg) {
 // --- エンジン開始 ---
 Render.run(render); 
 Engine.run(engine);
+
 
 
 
